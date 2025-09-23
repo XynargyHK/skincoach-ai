@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://skincoach.ai'),
   title: "SkinCoach.ai - AI-Powered Personalized Skincare | Prescription-Grade Formulas",
   description: "Revolutionary AI skincare that adapts to your skin, climate, and lifestyle. Get prescription-grade, personalized formulas with nanotech boosters. FDA registered, dermatologist-tested. Transform your skin with AI intelligence.",
   keywords: "AI skincare, personalized skincare, prescription skincare, dermatologist tested, anti-aging, acne treatment, custom skincare routine, nanotech skincare, FDA registered skincare",
