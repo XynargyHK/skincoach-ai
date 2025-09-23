@@ -1,0 +1,3 @@
+Force Railway deployment - $(date)
+Deploy timestamp: 2025-09-23T$(date +%H:%M:%S)
+Deploying quiz system with all CTA links
