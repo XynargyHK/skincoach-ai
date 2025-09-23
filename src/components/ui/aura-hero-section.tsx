@@ -57,7 +57,7 @@ export default function AuraHeroSection() {
 
               {/* CTA Button */}
               <div className="flex flex-col sm:flex-row gap-4">
-                <button className="group relative overflow-hidden bg-gradient-to-r from-blue-500 via-cyan-500 to-emerald-500 text-white font-semibold text-lg px-8 py-4 rounded-2xl transition-all duration-500 hover:shadow-2xl hover:shadow-cyan-500/25 hover:-translate-y-1 border border-white/10">
+                <a href="/quiz" className="group relative overflow-hidden bg-gradient-to-r from-blue-500 via-cyan-500 to-emerald-500 text-white font-semibold text-lg px-8 py-4 rounded-2xl transition-all duration-500 hover:shadow-2xl hover:shadow-cyan-500/25 hover:-translate-y-1 border border-white/10 inline-block">
                   <span className="relative z-10 flex items-center justify-center gap-3">
                     Take the Free Skin Quiz
                     <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -65,7 +65,7 @@ export default function AuraHeroSection() {
                     </svg>
                   </span>
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                </button>
+                </a>
               </div>
 
               {/* Trust badges */}

@@ -133,7 +133,7 @@ export default function TestimonialsSection() {
           <p className="text-slate-600 text-lg mb-6">
             Join thousands of others who have found their perfect skincare routine
           </p>
-          <button className="group relative overflow-hidden bg-gradient-to-r from-blue-500 via-cyan-500 to-emerald-500 text-white font-semibold text-lg px-8 py-4 rounded-2xl transition-all duration-500 hover:shadow-2xl hover:shadow-cyan-500/25 hover:-translate-y-1 border border-white/10">
+          <a href="/quiz" className="group relative overflow-hidden bg-gradient-to-r from-blue-500 via-cyan-500 to-emerald-500 text-white font-semibold text-lg px-8 py-4 rounded-2xl transition-all duration-500 hover:shadow-2xl hover:shadow-cyan-500/25 hover:-translate-y-1 border border-white/10 inline-block">
             <span className="relative z-10 flex items-center justify-center gap-3">
               Start Your Skin Journey
               <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -141,7 +141,7 @@ export default function TestimonialsSection() {
               </svg>
             </span>
             <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-          </button>
+          </a>
         </div>
       </div>
     </section>

@@ -110,13 +110,13 @@ export default function PricingSection() {
               </div>
 
               {/* CTA Button */}
-              <button className={`w-full font-semibold text-lg px-6 py-4 rounded-2xl transition-all duration-300 ${
+              <a href="/quiz" className={`w-full font-semibold text-lg px-6 py-4 rounded-2xl transition-all duration-300 block text-center ${
                 plan.buttonStyle === 'primary'
                   ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:shadow-2xl hover:shadow-emerald-500/25 hover:-translate-y-1'
                   : 'border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white'
               }`}>
                 {plan.buttonText}
-              </button>
+              </a>
             </div>
           ))}
         </div>

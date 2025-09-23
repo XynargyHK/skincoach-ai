@@ -53,7 +53,7 @@ export default function FinalCTASection() {
 
         {/* Final CTA */}
         <div className="space-y-6">
-          <button className="group relative overflow-hidden bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 text-white font-bold text-xl md:text-2xl px-16 py-6 rounded-2xl transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/25 hover:-translate-y-2 border border-white/10">
+          <a href="/quiz" className="group relative overflow-hidden bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 text-white font-bold text-xl md:text-2xl px-16 py-6 rounded-2xl transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/25 hover:-translate-y-2 border border-white/10 inline-block">
             <span className="relative z-10 flex items-center justify-center gap-4">
               YES, I WANT MY AI SKIN COACH
               <svg className="w-7 h-7 transition-transform group-hover:translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -61,7 +61,7 @@ export default function FinalCTASection() {
               </svg>
             </span>
             <div className="absolute inset-0 bg-gradient-to-r from-red-400 via-orange-400 to-yellow-400 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-          </button>
+          </a>
 
           <p className="text-slate-400 text-sm">
             🔒 30-day guarantee • Cancel anytime • Start improving today
