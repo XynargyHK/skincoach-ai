@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/Denny/brezcode-health/**)",
+      "Read(//c/Users/Denny/**)",
+      "Bash(npx create-next-app:*)",
+      "Bash(npx:*)",
+      "Bash(npm install:*)",
+      "Bash(cat:*)",
+      "Bash(npm run build:*)",
+      "WebFetch(domain:preview--derm-ai-routine.lovable.app)",
+      "WebSearch",
+      "Bash(timeout 10 npm run dev)",
+      "Bash(npm run dev:*)",
+      "Bash(npm run start:*)",
+      "Bash(taskkill:*)",
+      "Bash(curl:*)",
+      "Bash(npm remove:*)",
+      "WebFetch(domain:aura.build)",
+      "WebFetch(domain:auradesignsystem.com)",
+      "Bash(tasklist)",
+      "Bash(findstr:*)",
+      "Bash(netstat:*)",
+      "WebFetch(domain:localhost)",
+      "Bash(git init:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

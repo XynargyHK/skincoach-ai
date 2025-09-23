@@ -1,0 +1,22 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://skincoach.ai/sitemap.xml
+
+# Block access to admin areas (if any)
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /private/
+
+# Allow common crawl paths
+Allow: /
+Allow: /pricing
+Allow: /about
+Allow: /blog/
+Allow: /how-it-works
+Allow: /testimonials
+
+# Crawl-delay (optional, in seconds)
+Crawl-delay: 1
