@@ -11,6 +11,7 @@ export default function Header() {
     { name: 'Pricing', href: '#pricing' },
     { name: 'Testimonials', href: '#testimonials' },
     { name: 'FAQ', href: '#faq' },
+    { name: 'Take Quiz', href: '/quiz' },
   ]
 
   return (
@@ -43,9 +44,9 @@ export default function Header() {
 
           {/* CTA Button */}
           <div className="hidden md:flex items-center space-x-4">
-            <button className="bg-gradient-to-r from-blue-500 via-cyan-500 to-emerald-500 text-white font-semibold px-6 py-2 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/25 hover:-translate-y-0.5">
+            <a href="/quiz" className="bg-gradient-to-r from-blue-500 via-cyan-500 to-emerald-500 text-white font-semibold px-6 py-2 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/25 hover:-translate-y-0.5">
               Get Started
-            </button>
+            </a>
           </div>
 
           {/* Mobile menu button */}
@@ -81,9 +82,9 @@ export default function Header() {
                 </a>
               ))}
               <div className="px-3 py-2">
-                <button className="w-full bg-gradient-to-r from-blue-500 via-cyan-500 to-emerald-500 text-white font-semibold px-6 py-2 rounded-xl transition-all duration-300">
+                <a href="/quiz" className="block w-full bg-gradient-to-r from-blue-500 via-cyan-500 to-emerald-500 text-white font-semibold px-6 py-2 rounded-xl transition-all duration-300 text-center">
                   Get Started
-                </button>
+                </a>
               </div>
             </div>
           </div>
