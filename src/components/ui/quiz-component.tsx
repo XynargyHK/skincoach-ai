@@ -5,6 +5,28 @@ import { Progress } from '@/components/ui/progress'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 
+const sliderStyles = `
+  .slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #06b6d4, #10b981);
+    border: 2px solid #fff;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+  }
+  .slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #06b6d4, #10b981);
+    border: 2px solid #fff;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+  }
+`
+
 interface QuizQuestion {
   id: string
   category: string
@@ -246,33 +268,38 @@ const skinCareQuestions: QuizQuestion[] = [
 ]
 
 export default function QuizComponent() {
-  const [currentQuestion, setCurrentQuestion] = useState(0)
   const [responses, setResponses] = useState<QuizResponse>({})
   const [isComplete, setIsComplete] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [spendingAmount, setSpendingAmount] = useState(50)
   const { user } = useAuth()
 
-  const progress = ((currentQuestion + 1) / skinCareQuestions.length) * 100
-  const question = skinCareQuestions[currentQuestion]
-
-  const handleAnswer = (answer: string | string[]) => {
+  const handleAnswer = (questionId: string, answer: string | string[]) => {
     setResponses(prev => ({
       ...prev,
-      [question.id]: answer
+      [questionId]: answer
     }))
   }
 
-  const handleNext = () => {
-    if (currentQuestion < skinCareQuestions.length - 1) {
-      setCurrentQuestion(prev => prev + 1)
-    } else {
-      setIsComplete(true)
-    }
+  const handleSpendingChange = (value: number[]) => {
+    setSpendingAmount(value[0])
+    setResponses(prev => ({
+      ...prev,
+      spending_budget: value[0].toString()
+    }))
   }
 
-  const handlePrevious = () => {
-    if (currentQuestion > 0) {
-      setCurrentQuestion(prev => prev - 1)
+  const canComplete = () => {
+    return responses.gender &&
+           responses.age_group &&
+           responses.skin_type &&
+           responses.primary_concern &&
+           responses.spending_budget
+  }
+
+  const handleComplete = () => {
+    if (canComplete()) {
+      setIsComplete(true)
     }
   }
 
@@ -293,22 +320,9 @@ export default function QuizComponent() {
             user_id: user.id,
             gender: responses.gender,
             age_group: responses.age_group,
-            ethnicity: responses.ethnicity,
-            skin_tone: responses.skin_tone,
             skin_type: responses.skin_type,
-            sensitivity_level: responses.sensitivity_level,
-            skin_conditions: Array.isArray(responses.skin_conditions) ? responses.skin_conditions : [responses.skin_conditions],
-            acne_level: responses.acne_level,
-            pigmentation_issues: Array.isArray(responses.pigmentation_issues) ? responses.pigmentation_issues : [responses.pigmentation_issues],
-            aging_signs: Array.isArray(responses.aging_signs) ? responses.aging_signs : [responses.aging_signs],
-            skin_firmness: responses.skin_firmness,
-            dark_circles: responses.dark_circles,
-            eye_bags: responses.eye_bags,
-            current_routine: Array.isArray(responses.current_routine) ? responses.current_routine : [responses.current_routine],
-            skincare_knowledge: responses.skincare_knowledge,
-            skin_goals: Array.isArray(responses.skin_goals) ? responses.skin_goals : [responses.skin_goals],
-            lifestyle_factors: Array.isArray(responses.lifestyle_factors) ? responses.lifestyle_factors : [responses.lifestyle_factors],
-            diet_habits: Array.isArray(responses.diet_habits) ? responses.diet_habits : [responses.diet_habits]
+            primary_concern: responses.primary_concern,
+            spending_budget: responses.spending_budget
           }
         ])
         .select()
@@ -334,37 +348,51 @@ export default function QuizComponent() {
     let boosters: string[] = []
     const priorityConcerns: string[] = []
 
-    // Determine plan based on skin goals and concerns
-    const goals = Array.isArray(responses.skin_goals) ? responses.skin_goals : [responses.skin_goals]
     const ageGroup = responses.age_group as string
+    const spendingBudget = parseInt(responses.spending_budget as string || '50')
+    const primaryConcern = responses.primary_concern as string
 
-    if (goals.length > 4 || ageGroup === '50+') {
+    // Determine plan based on age, budget, and concerns
+    if (ageGroup === '40+' || spendingBudget >= 150) {
       recommendedPlan = 'Concierge'
       boosters = ['Anti-aging', 'Hydration', 'Brightening', 'Firming']
-    } else if (goals.length > 2 || ageGroup === '36-50') {
+    } else if (ageGroup === '21-40' || spendingBudget >= 80) {
       recommendedPlan = 'Pro'
-      boosters = ['Anti-aging', 'Hydration', 'Brightening']
+      boosters = ['Hydration', 'Protection', 'Brightening']
     } else {
       recommendedPlan = 'Essential'
       boosters = ['Hydration', 'Protection']
     }
 
-    // Add specific boosters based on concerns
-    if (responses.acne_level !== 'No acne or comedones') {
-      boosters.push('Anti-acne')
-      priorityConcerns.push('Acne treatment')
-    }
-
-    if (Array.isArray(responses.pigmentation_issues) &&
-        responses.pigmentation_issues.some(issue => issue !== 'No pigmentation issues')) {
-      boosters.push('Brightening')
-      priorityConcerns.push('Pigmentation reduction')
-    }
-
-    if (Array.isArray(responses.aging_signs) &&
-        responses.aging_signs.some(sign => sign !== 'No visible aging signs')) {
-      boosters.push('Anti-wrinkle')
-      priorityConcerns.push('Anti-aging')
+    // Add specific boosters based on primary concern
+    switch (primaryConcern) {
+      case 'Acne':
+        boosters.push('Anti-acne')
+        priorityConcerns.push('Acne treatment')
+        break
+      case 'Pigmentations':
+        boosters.push('Brightening')
+        priorityConcerns.push('Pigmentation reduction')
+        break
+      case 'Fine Lines':
+      case 'Sagging':
+      case 'Crow\'s Feet':
+        boosters.push('Anti-wrinkle')
+        priorityConcerns.push('Anti-aging')
+        break
+      case 'Redness':
+        boosters.push('Soothing')
+        priorityConcerns.push('Sensitivity reduction')
+        break
+      case 'Eye Bag':
+      case 'Dark Circle':
+        boosters.push('Eye Care')
+        priorityConcerns.push('Eye area treatment')
+        break
+      case 'Uneven Texture':
+        boosters.push('Exfoliation')
+        priorityConcerns.push('Texture improvement')
+        break
     }
 
     // Save recommendations
@@ -380,7 +408,7 @@ export default function QuizComponent() {
           skin_analysis: {
             skin_type: responses.skin_type,
             main_concerns: priorityConcerns,
-            sensitivity_level: responses.sensitivity_level
+            primary_concern: primaryConcern
           },
           timeline_expectations: '4-8 weeks for visible results'
         }
@@ -391,13 +419,6 @@ export default function QuizComponent() {
     }
   }
 
-  const isAnswered = () => {
-    const answer = responses[question.id]
-    if (question.type === 'multiple') {
-      return Array.isArray(answer) && answer.length > 0
-    }
-    return answer && answer !== ''
-  }
 
   if (isComplete) {
     return (
@@ -442,40 +463,33 @@ export default function QuizComponent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
+      <style dangerouslySetInnerHTML={{ __html: sliderStyles }} />
       {/* Background gradient orbs */}
       <div className="absolute top-20 left-20 w-72 h-72 bg-blue-500/20 rounded-full blur-3xl"></div>
       <div className="absolute bottom-20 right-20 w-96 h-96 bg-emerald-500/20 rounded-full blur-3xl"></div>
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl"></div>
 
       <div className="relative z-10 flex items-center justify-center min-h-screen p-6">
-        <div className="max-w-2xl w-full space-y-6">
-          {/* Progress Bar */}
-          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6">
-            <div className="space-y-4">
-              <div className="flex justify-between text-sm text-slate-300">
-                <span>Question {currentQuestion + 1} of {skinCareQuestions.length}</span>
-                <span>{Math.round(progress)}% Complete</span>
-              </div>
-              <Progress value={progress} className="h-3 bg-white/20" />
-            </div>
-          </div>
-
-          {/* Question Card */}
+        <div className="max-w-2xl w-full">
           <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-8">
-            <div className="mb-6">
-              <div className="text-sm text-cyan-400 font-medium mb-2">{question.category}</div>
-              <h2 className="text-xl font-semibold text-white leading-relaxed">{question.question}</h2>
+            <div className="mb-8 text-center">
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent mb-4">
+                Basic Assessment
+              </h2>
+              <div className="w-20 h-1 bg-gradient-to-r from-blue-500 to-emerald-500 mx-auto rounded-full"></div>
             </div>
 
-            <div className="space-y-3">
-              {question.type === 'single' ? (
-                <div className="space-y-3">
-                  {question.options.map((option, index) => (
+            <div className="space-y-8">
+              {/* Gender */}
+              <div>
+                <h3 className="text-2xl font-semibold text-white mb-4 text-center">Gender</h3>
+                <div className="flex gap-4">
+                  {['Male', 'Female'].map((option) => (
                     <button
-                      key={index}
-                      onClick={() => handleAnswer(option)}
-                      className={`w-full p-4 text-left rounded-xl border transition-all duration-300 ${
-                        responses[question.id] === option
+                      key={option}
+                      onClick={() => handleAnswer('gender', option)}
+                      className={`flex-1 p-4 rounded-xl border transition-all duration-300 ${
+                        responses.gender === option
                           ? 'border-cyan-400/50 bg-cyan-500/20 text-cyan-100 shadow-lg shadow-cyan-500/25'
                           : 'border-white/20 bg-white/5 text-slate-300 hover:border-white/30 hover:bg-white/10'
                       }`}
@@ -484,64 +498,103 @@ export default function QuizComponent() {
                     </button>
                   ))}
                 </div>
-              ) : (
-                <div className="space-y-3">
-                  {question.options.map((option, index) => {
-                    const currentAnswers = Array.isArray(responses[question.id]) ? responses[question.id] as string[] : []
-                    const isSelected = currentAnswers.includes(option)
+              </div>
 
-                    return (
-                      <button
-                        key={index}
-                        onClick={() => {
-                          if (isSelected) {
-                            handleAnswer(currentAnswers.filter(a => a !== option))
-                          } else {
-                            handleAnswer([...currentAnswers, option])
-                          }
-                        }}
-                        className={`w-full p-4 text-left rounded-xl border transition-all duration-300 ${
-                          isSelected
-                            ? 'border-cyan-400/50 bg-cyan-500/20 text-cyan-100 shadow-lg shadow-cyan-500/25'
-                            : 'border-white/20 bg-white/5 text-slate-300 hover:border-white/30 hover:bg-white/10'
-                        }`}
-                      >
-                        <div className="flex items-center space-x-4">
-                          <div className={`w-5 h-5 rounded border-2 transition-all ${
-                            isSelected ? 'bg-cyan-500 border-cyan-400' : 'border-white/30'
-                          }`}>
-                            {isSelected && (
-                              <svg className="w-3 h-3 text-white ml-0.5 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                              </svg>
-                            )}
-                          </div>
-                          <span>{option}</span>
-                        </div>
-                      </button>
-                    )
-                  })}
+              {/* Age */}
+              <div>
+                <h3 className="text-2xl font-semibold text-white mb-4 text-center">Age Group</h3>
+                <div className="flex gap-4">
+                  {['<20', '21-40', '40+'].map((option) => (
+                    <button
+                      key={option}
+                      onClick={() => handleAnswer('age_group', option)}
+                      className={`flex-1 p-4 rounded-xl border transition-all duration-300 ${
+                        responses.age_group === option
+                          ? 'border-cyan-400/50 bg-cyan-500/20 text-cyan-100 shadow-lg shadow-cyan-500/25'
+                          : 'border-white/20 bg-white/5 text-slate-300 hover:border-white/30 hover:bg-white/10'
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  ))}
                 </div>
-              )}
-            </div>
-          </div>
+              </div>
 
-          {/* Navigation */}
-          <div className="flex justify-between">
-            <button
-              onClick={handlePrevious}
-              disabled={currentQuestion === 0}
-              className="px-6 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-slate-300 hover:bg-white/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Previous
-            </button>
-            <button
-              onClick={handleNext}
-              disabled={!isAnswered()}
-              className="px-6 py-3 bg-gradient-to-r from-blue-500 via-cyan-500 to-emerald-500 text-white font-semibold rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/25 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {currentQuestion === skinCareQuestions.length - 1 ? 'Complete Quiz' : 'Next'}
-            </button>
+              {/* Skin Type */}
+              <div>
+                <h3 className="text-2xl font-semibold text-white mb-4 text-center">Skin Type</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  {['Dry', 'Normal', 'Combination', 'Oily'].map((option) => (
+                    <button
+                      key={option}
+                      onClick={() => handleAnswer('skin_type', option)}
+                      className={`p-4 rounded-xl border transition-all duration-300 ${
+                        responses.skin_type === option
+                          ? 'border-cyan-400/50 bg-cyan-500/20 text-cyan-100 shadow-lg shadow-cyan-500/25'
+                          : 'border-white/20 bg-white/5 text-slate-300 hover:border-white/30 hover:bg-white/10'
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Top Concern */}
+              <div>
+                <h3 className="text-2xl font-semibold text-white mb-4 text-center">Top Concern</h3>
+                <div className="grid grid-cols-3 gap-3">
+                  {['Acne', 'Redness', 'Pigmentations', 'Sagging', 'Fine Lines', 'Uneven Texture', 'Eye Bag', 'Dark Circle', 'Crow\'s Feet'].map((option) => (
+                    <button
+                      key={option}
+                      onClick={() => handleAnswer('primary_concern', option)}
+                      className={`p-3 text-sm rounded-xl border transition-all duration-300 ${
+                        responses.primary_concern === option
+                          ? 'border-cyan-400/50 bg-cyan-500/20 text-cyan-100 shadow-lg shadow-cyan-500/25'
+                          : 'border-white/20 bg-white/5 text-slate-300 hover:border-white/30 hover:bg-white/10'
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Spending/Month */}
+              <div>
+                <h3 className="text-2xl font-semibold text-white mb-4 text-center">
+                  Monthly Spending: ${spendingAmount}{spendingAmount >= 200 ? '+' : ''}
+                </h3>
+                <div className="px-2">
+                  <input
+                    type="range"
+                    min="20"
+                    max="200"
+                    value={spendingAmount}
+                    onChange={(e) => handleSpendingChange([parseInt(e.target.value)])}
+                    className="w-full h-3 bg-white/20 rounded-lg appearance-none cursor-pointer slider"
+                    style={{
+                      background: `linear-gradient(to right, #06b6d4 0%, #10b981 ${((spendingAmount - 20) / 180) * 100}%, rgba(255,255,255,0.2) ${((spendingAmount - 20) / 180) * 100}%, rgba(255,255,255,0.2) 100%)`
+                    }}
+                  />
+                  <div className="flex justify-between text-sm text-slate-400 mt-2">
+                    <span>$20</span>
+                    <span>$200+</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Complete Button */}
+              <div className="pt-4">
+                <button
+                  onClick={handleComplete}
+                  disabled={!canComplete()}
+                  className="w-full py-4 bg-gradient-to-r from-blue-500 via-cyan-500 to-emerald-500 text-white font-semibold rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/25 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Complete Assessment
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
