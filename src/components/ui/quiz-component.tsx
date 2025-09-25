@@ -290,10 +290,11 @@ export default function QuizComponent() {
   }
 
   const canComplete = () => {
+    const concerns = Array.isArray(responses.primary_concern) ? responses.primary_concern : []
     return responses.gender &&
            responses.age_group &&
            responses.skin_type &&
-           responses.primary_concern &&
+           concerns.length > 0 &&
            responses.spending_budget
   }
 
@@ -350,13 +351,13 @@ export default function QuizComponent() {
 
     const ageGroup = responses.age_group as string
     const spendingBudget = parseInt(responses.spending_budget as string || '50')
-    const primaryConcern = responses.primary_concern as string
+    const primaryConcerns = Array.isArray(responses.primary_concern) ? responses.primary_concern as string[] : []
 
-    // Determine plan based on age, budget, and concerns
-    if (ageGroup === '40+' || spendingBudget >= 150) {
+    // Determine plan based on age, budget, and number of concerns
+    if (ageGroup === '40+' || spendingBudget >= 150 || primaryConcerns.length >= 4) {
       recommendedPlan = 'Concierge'
       boosters = ['Anti-aging', 'Hydration', 'Brightening', 'Firming']
-    } else if (ageGroup === '21-40' || spendingBudget >= 80) {
+    } else if (ageGroup === '21-40' || spendingBudget >= 80 || primaryConcerns.length >= 2) {
       recommendedPlan = 'Pro'
       boosters = ['Hydration', 'Protection', 'Brightening']
     } else {
@@ -364,36 +365,38 @@ export default function QuizComponent() {
       boosters = ['Hydration', 'Protection']
     }
 
-    // Add specific boosters based on primary concern
-    switch (primaryConcern) {
-      case 'Acne':
-        boosters.push('Anti-acne')
-        priorityConcerns.push('Acne treatment')
-        break
-      case 'Pigmentations':
-        boosters.push('Brightening')
-        priorityConcerns.push('Pigmentation reduction')
-        break
-      case 'Fine Lines':
-      case 'Sagging':
-      case 'Crow\'s Feet':
-        boosters.push('Anti-wrinkle')
-        priorityConcerns.push('Anti-aging')
-        break
-      case 'Redness':
-        boosters.push('Soothing')
-        priorityConcerns.push('Sensitivity reduction')
-        break
-      case 'Eye Bag':
-      case 'Dark Circle':
-        boosters.push('Eye Care')
-        priorityConcerns.push('Eye area treatment')
-        break
-      case 'Uneven Texture':
-        boosters.push('Exfoliation')
-        priorityConcerns.push('Texture improvement')
-        break
-    }
+    // Add specific boosters based on selected concerns
+    primaryConcerns.forEach(concern => {
+      switch (concern) {
+        case 'Acne':
+          if (!boosters.includes('Anti-acne')) boosters.push('Anti-acne')
+          if (!priorityConcerns.includes('Acne treatment')) priorityConcerns.push('Acne treatment')
+          break
+        case 'Pigments':
+          if (!boosters.includes('Brightening')) boosters.push('Brightening')
+          if (!priorityConcerns.includes('Pigmentation reduction')) priorityConcerns.push('Pigmentation reduction')
+          break
+        case 'Fine Lines':
+        case 'Sagging':
+        case 'Crow\'s Feet':
+          if (!boosters.includes('Anti-wrinkle')) boosters.push('Anti-wrinkle')
+          if (!priorityConcerns.includes('Anti-aging')) priorityConcerns.push('Anti-aging')
+          break
+        case 'Redness':
+          if (!boosters.includes('Soothing')) boosters.push('Soothing')
+          if (!priorityConcerns.includes('Sensitivity reduction')) priorityConcerns.push('Sensitivity reduction')
+          break
+        case 'Eye Bag':
+        case 'Dark Circle':
+          if (!boosters.includes('Eye Care')) boosters.push('Eye Care')
+          if (!priorityConcerns.includes('Eye area treatment')) priorityConcerns.push('Eye area treatment')
+          break
+        case 'Uneven Texture':
+          if (!boosters.includes('Exfoliation')) boosters.push('Exfoliation')
+          if (!priorityConcerns.includes('Texture improvement')) priorityConcerns.push('Texture improvement')
+          break
+      }
+    })
 
     // Save recommendations
     const { error } = await supabase
@@ -408,7 +411,7 @@ export default function QuizComponent() {
           skin_analysis: {
             skin_type: responses.skin_type,
             main_concerns: priorityConcerns,
-            primary_concern: primaryConcern
+            primary_concerns: primaryConcerns
           },
           timeline_expectations: '4-8 weeks for visible results'
         }
@@ -542,21 +545,43 @@ export default function QuizComponent() {
 
               {/* Top Concern */}
               <div>
-                <h3 className="text-2xl font-semibold text-white mb-4 text-center">Top Concern</h3>
+                <h3 className="text-2xl font-semibold text-white mb-4 text-center">Top Concerns</h3>
                 <div className="grid grid-cols-3 gap-3">
-                  {['Acne', 'Redness', 'Pigmentations', 'Sagging', 'Fine Lines', 'Uneven Texture', 'Eye Bag', 'Dark Circle', 'Crow\'s Feet'].map((option) => (
-                    <button
-                      key={option}
-                      onClick={() => handleAnswer('primary_concern', option)}
-                      className={`p-3 text-sm rounded-xl border transition-all duration-300 ${
-                        responses.primary_concern === option
-                          ? 'border-cyan-400/50 bg-cyan-500/20 text-cyan-100 shadow-lg shadow-cyan-500/25'
-                          : 'border-white/20 bg-white/5 text-slate-300 hover:border-white/30 hover:bg-white/10'
-                      }`}
-                    >
-                      {option}
-                    </button>
-                  ))}
+                  {['Acne', 'Redness', 'Pigments', 'Sagging', 'Fine Lines', 'Uneven Texture', 'Eye Bag', 'Dark Circle', 'Crow\'s Feet'].map((option) => {
+                    const currentConcerns = Array.isArray(responses.primary_concern) ? responses.primary_concern as string[] : []
+                    const isSelected = currentConcerns.includes(option)
+
+                    return (
+                      <button
+                        key={option}
+                        onClick={() => {
+                          if (isSelected) {
+                            handleAnswer('primary_concern', currentConcerns.filter(c => c !== option))
+                          } else {
+                            handleAnswer('primary_concern', [...currentConcerns, option])
+                          }
+                        }}
+                        className={`p-3 text-sm rounded-xl border transition-all duration-300 ${
+                          isSelected
+                            ? 'border-cyan-400/50 bg-cyan-500/20 text-cyan-100 shadow-lg shadow-cyan-500/25'
+                            : 'border-white/20 bg-white/5 text-slate-300 hover:border-white/30 hover:bg-white/10'
+                        }`}
+                      >
+                        <div className="flex items-center justify-center space-x-2">
+                          <div className={`w-4 h-4 rounded border-2 transition-all ${
+                            isSelected ? 'bg-cyan-500 border-cyan-400' : 'border-white/30'
+                          }`}>
+                            {isSelected && (
+                              <svg className="w-2.5 h-2.5 text-white ml-0.5 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            )}
+                          </div>
+                          <span>{option}</span>
+                        </div>
+                      </button>
+                    )
+                  })}
                 </div>
               </div>
 
