@@ -305,39 +305,56 @@ export default function QuizComponent() {
   }
 
   const handleSubmit = async () => {
-    if (!user) {
-      alert('Please sign in to save your quiz results')
-      return
-    }
-
     setIsSubmitting(true)
 
     try {
-      // Save quiz response to Supabase
-      const { data, error } = await supabase
-        .from('quiz_responses')
-        .insert([
-          {
-            user_id: user.id,
-            gender: responses.gender,
-            age_group: responses.age_group,
-            skin_type: responses.skin_type,
-            primary_concern: responses.primary_concern,
-            spending_budget: responses.spending_budget
-          }
-        ])
-        .select()
+      // Store quiz responses in localStorage temporarily for use after registration
+      const quizData = {
+        gender: responses.gender,
+        age_group: responses.age_group,
+        skin_type: responses.skin_type,
+        primary_concern: Array.isArray(responses.primary_concern) ? responses.primary_concern : [responses.primary_concern],
+        spending_budget: responses.spending_budget,
+        completed_at: new Date().toISOString()
+      }
 
-      if (error) throw error
+      localStorage.setItem('skincoach_quiz_data', JSON.stringify(quizData))
 
-      // Generate recommendations based on responses
-      await generateRecommendations(data[0].id)
+      // If user is authenticated, save to database immediately
+      if (user) {
+        const { data, error } = await supabase
+          .from('quiz_responses')
+          .insert([
+            {
+              user_id: user.id,
+              gender: responses.gender,
+              age_group: responses.age_group,
+              skin_type: responses.skin_type,
+              skin_concerns: Array.isArray(responses.primary_concern) ? responses.primary_concern : [responses.primary_concern],
+              budget_range: responses.spending_budget,
+              // Fill required fields with correct array/string types
+              current_products: ['N/A'],
+              lifestyle_factors: ['N/A'],
+              preferences: 'N/A',
+              routine_time: 'N/A',
+              skin_sensitivity: 'N/A',
+              product_experience: 'N/A',
+              specific_goals: ['Basic Assessment']
+            }
+          ])
+          .select()
 
-      alert('Quiz completed! Your personalized skincare recommendations are being generated.')
+        if (!error && data?.length > 0) {
+          await generateRecommendations(data[0].id)
+        }
+      }
+
+      // Redirect to user registration page to collect contact info
+      window.location.href = '/register'
 
     } catch (error) {
-      console.error('Error saving quiz:', error)
-      alert('Error saving quiz results. Please try again.')
+      console.error('Error processing quiz:', error)
+      alert('Error processing quiz. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
