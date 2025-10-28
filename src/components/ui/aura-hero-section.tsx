@@ -1,14 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-
 export default function AuraHeroSection() {
-  const [isLoaded, setIsLoaded] = useState(false)
-
-  useEffect(() => {
-    setIsLoaded(true)
-  }, [])
-
   return (
     <section className="relative min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 overflow-hidden">
       {/* Subtle grid pattern */}
@@ -25,7 +17,7 @@ export default function AuraHeroSection() {
         <div className="md:grid md:grid-cols-2 md:gap-16 md:items-center w-full md:min-h-screen">
 
           {/* Left Section - Text Content */}
-          <div className={`mb-16 md:mb-0 transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <div className="mb-16 md:mb-0">
             <div className="space-y-6 md:space-y-10">
 
               {/* Badge */}
@@ -36,30 +28,35 @@ export default function AuraHeroSection() {
 
               {/* Headline */}
               <h1 className="text-white font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-[1.1] tracking-tight">
-                End the Guesswork.
-                <br />
-                Fix the Root Cause.
-                <br />
-                <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
-                  Rebuild Your Skin.
-                </span>
+                Finally — A Drop that understands your skin and fix all concerns.
               </h1>
 
               {/* Subheadline */}
               <h2 className="text-slate-300 font-medium text-lg sm:text-xl md:text-2xl leading-relaxed">
-                The World's First AI-Adaptive, Prescription-Grade Skincare — Built to Evolve With You.
+                Too good to be true? Not when it's powered by AI.
               </h2>
 
               {/* Supporting Copy */}
-              <p className="text-slate-400 text-base md:text-lg leading-relaxed max-w-2xl">
-                No more guessing. No more advice that never works. SkinCoach.ai diagnoses your skin and climate reactions, then evolves your formula into a cocktail of nanotech boosters — targeting multiple concerns at once while keeping your routine simple and effective.
-              </p>
+              <div className="text-slate-400 text-base md:text-lg leading-relaxed max-w-2xl space-y-4">
+                <p>
+                  Our Modular AI Skincare System remodels your skin's regenerative engine — renewing it faster, brighter, and stronger.
+                </p>
+                <p>
+                  Like a garden, your skin grows firmer, smoother, and more luminous when it's watered and nourished with exactly what it needs — no more guessing, no 10-step routines.
+                </p>
+                <p className="font-semibold text-slate-300">
+                  One drop that learns you – and transforms everything.
+                </p>
+                <p className="text-cyan-400 font-medium">
+                  ✨ Visible glow in 15 days.
+                </p>
+              </div>
 
               {/* CTA Button */}
               <div className="flex flex-col sm:flex-row gap-4">
                 <a href="/quiz" className="group relative overflow-hidden bg-gradient-to-r from-blue-500 via-cyan-500 to-emerald-500 text-white font-semibold text-lg px-8 py-4 rounded-2xl transition-all duration-500 hover:shadow-2xl hover:shadow-cyan-500/25 hover:-translate-y-1 border border-white/10 inline-block">
                   <span className="relative z-10 flex items-center justify-center gap-3">
-                    Take the Free Skin Quiz
+                    Transform now
                     <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
@@ -68,15 +65,27 @@ export default function AuraHeroSection() {
                 </a>
               </div>
 
-              {/* Trust badges */}
-              <div className="flex flex-wrap items-center gap-4 md:gap-6 text-xs md:text-sm">
-                <div className="flex items-center gap-2 md:gap-3">
-                  <div className="w-2 h-2 md:w-3 md:h-3 bg-emerald-400 rounded-full animate-pulse" style={{animationDelay: '0.5s'}}></div>
-                  <span className="text-slate-400 font-medium">Prescription-grade</span>
+              {/* Support Bullets */}
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+                  <div className="flex items-start gap-3">
+                    <span className="text-emerald-400 text-lg font-bold flex-shrink-0">•</span>
+                    <span className="text-slate-300 text-sm md:text-base font-medium">AI-guided formulation</span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="text-cyan-400 text-lg font-bold flex-shrink-0">•</span>
+                    <span className="text-slate-300 text-sm md:text-base font-medium">Functional boosters for multiple concerns</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 md:gap-3">
-                  <div className="w-2 h-2 md:w-3 md:h-3 bg-cyan-400 rounded-full animate-pulse" style={{animationDelay: '1s'}}></div>
-                  <span className="text-slate-400 font-medium">FDA registered</span>
+                <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+                  <div className="flex items-start gap-3">
+                    <span className="text-blue-400 text-lg font-bold flex-shrink-0">•</span>
+                    <span className="text-slate-300 text-sm md:text-base font-medium">10× power with NanoTech delivery</span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="text-purple-400 text-lg font-bold flex-shrink-0">•</span>
+                    <span className="text-slate-300 text-sm md:text-base font-medium">Developed to FDA-approved standards</span>
+                  </div>
                 </div>
               </div>
 
@@ -84,7 +93,7 @@ export default function AuraHeroSection() {
           </div>
 
           {/* Right Section - Visuals */}
-          <div className={`relative transition-all duration-1200 delay-300 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+          <div className="relative">
             <div className="relative py-8">
 
               {/* Main Product Showcase Container - Grouped Image */}
@@ -226,7 +235,7 @@ export default function AuraHeroSection() {
                 <div className="absolute left-4 top-8 max-w-xs z-20">
 
                   {/* AI Analysis Card */}
-                  <div className={`bg-gradient-to-br from-blue-500/10 to-cyan-500/10 backdrop-blur-sm border border-blue-400/30 rounded-2xl px-3 py-2 mb-4 transition-all duration-1000 delay-500 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+                  <div className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 backdrop-blur-sm border border-blue-400/30 rounded-2xl px-3 py-2 mb-4">
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 bg-gradient-to-br from-blue-400 to-cyan-400 rounded-lg flex items-center justify-center">
                         <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -241,7 +250,7 @@ export default function AuraHeroSection() {
                   </div>
 
                   {/* Formula Card */}
-                  <div className={`bg-gradient-to-br from-emerald-500/10 to-teal-500/10 backdrop-blur-sm border border-emerald-400/30 rounded-2xl px-3 py-2 mb-4 transition-all duration-1000 delay-700 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+                  <div className="bg-gradient-to-br from-emerald-500/10 to-teal-500/10 backdrop-blur-sm border border-emerald-400/30 rounded-2xl px-3 py-2 mb-4">
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 bg-gradient-to-br from-emerald-400 to-teal-400 rounded-lg flex items-center justify-center">
                         <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -256,7 +265,7 @@ export default function AuraHeroSection() {
                   </div>
 
                   {/* Results Card */}
-                  <div className={`bg-gradient-to-br from-purple-500/10 to-pink-500/10 backdrop-blur-sm border border-purple-400/30 rounded-2xl px-3 py-2 transition-all duration-1000 delay-900 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+                  <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 backdrop-blur-sm border border-purple-400/30 rounded-2xl px-3 py-2">
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 bg-gradient-to-br from-purple-400 to-pink-400 rounded-lg flex items-center justify-center">
                         <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

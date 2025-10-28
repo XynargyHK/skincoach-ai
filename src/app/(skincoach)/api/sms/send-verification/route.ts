@@ -101,4 +101,5 @@ setInterval(() => {
   }
 }, 5 * 60 * 1000) // Clean up every 5 minutes
 
-export { verificationCodes }
+// Export for use in other modules
+export const getVerificationCodes = () => verificationCodes

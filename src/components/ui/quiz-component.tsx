@@ -268,10 +268,14 @@ const skinCareQuestions: QuizQuestion[] = [
 ]
 
 export default function QuizComponent() {
-  const [responses, setResponses] = useState<QuizResponse>({})
+  const [responses, setResponses] = useState<QuizResponse>({
+    climate: '50', // Initialize with default climate value
+    spending_budget: '50' // Initialize with default spending budget
+  })
   const [isComplete, setIsComplete] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [spendingAmount, setSpendingAmount] = useState(50)
+  const [climateValue, setClimateValue] = useState(50)
   const { user } = useAuth()
 
   const handleAnswer = (questionId: string, answer: string | string[]) => {
@@ -289,13 +293,38 @@ export default function QuizComponent() {
     }))
   }
 
+  const handleClimateChange = (value: number[]) => {
+    setClimateValue(value[0])
+    setResponses(prev => ({
+      ...prev,
+      climate: value[0].toString()
+    }))
+  }
+
   const canComplete = () => {
     const concerns = Array.isArray(responses.primary_concern) ? responses.primary_concern : []
-    return responses.gender &&
+    const isComplete = responses.gender &&
            responses.age_group &&
            responses.skin_type &&
            concerns.length > 0 &&
+           responses.climate &&
            responses.spending_budget
+
+    // Debug logging in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Quiz completion check:', {
+        gender: !!responses.gender,
+        age_group: !!responses.age_group,
+        skin_type: !!responses.skin_type,
+        concerns: concerns.length > 0,
+        climate: !!responses.climate,
+        spending_budget: !!responses.spending_budget,
+        isComplete,
+        responses
+      })
+    }
+
+    return isComplete
   }
 
   const handleComplete = () => {
@@ -314,6 +343,7 @@ export default function QuizComponent() {
         age_group: responses.age_group,
         skin_type: responses.skin_type,
         primary_concern: Array.isArray(responses.primary_concern) ? responses.primary_concern : [responses.primary_concern],
+        climate: responses.climate,
         spending_budget: responses.spending_budget,
         completed_at: new Date().toISOString()
       }
@@ -331,6 +361,7 @@ export default function QuizComponent() {
               age_group: responses.age_group,
               skin_type: responses.skin_type,
               skin_concerns: Array.isArray(responses.primary_concern) ? responses.primary_concern : [responses.primary_concern],
+              climate: responses.climate,
               budget_range: responses.spending_budget,
               // Fill required fields with correct array/string types
               current_products: ['N/A'],
@@ -543,7 +574,7 @@ export default function QuizComponent() {
               {/* Skin Type */}
               <div>
                 <h3 className="text-2xl font-semibold text-white mb-4 text-center">Skin Type</h3>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
                   {['Dry', 'Normal', 'Combination', 'Oily'].map((option) => (
                     <button
                       key={option}
@@ -560,45 +591,200 @@ export default function QuizComponent() {
                 </div>
               </div>
 
-              {/* Top Concern */}
+              {/* Top Concerns */}
               <div>
-                <h3 className="text-2xl font-semibold text-white mb-4 text-center">Top Concerns</h3>
-                <div className="grid grid-cols-3 gap-3">
-                  {['Acne', 'Redness', 'Pigments', 'Sagging', 'Fine Lines', 'Uneven Texture', 'Eye Bag', 'Dark Circle', 'Crow\'s Feet'].map((option) => {
-                    const currentConcerns = Array.isArray(responses.primary_concern) ? responses.primary_concern as string[] : []
-                    const isSelected = currentConcerns.includes(option)
+                <h3 className="text-2xl font-semibold text-white mb-6 text-center">Top Concerns</h3>
 
-                    return (
-                      <button
-                        key={option}
-                        onClick={() => {
-                          if (isSelected) {
-                            handleAnswer('primary_concern', currentConcerns.filter(c => c !== option))
-                          } else {
-                            handleAnswer('primary_concern', [...currentConcerns, option])
-                          }
-                        }}
-                        className={`p-3 text-sm rounded-xl border transition-all duration-300 ${
-                          isSelected
-                            ? 'border-cyan-400/50 bg-cyan-500/20 text-cyan-100 shadow-lg shadow-cyan-500/25'
-                            : 'border-white/20 bg-white/5 text-slate-300 hover:border-white/30 hover:bg-white/10'
-                        }`}
-                      >
-                        <div className="flex items-center justify-center space-x-2">
-                          <div className={`w-4 h-4 rounded border-2 transition-all ${
-                            isSelected ? 'bg-cyan-500 border-cyan-400' : 'border-white/30'
-                          }`}>
-                            {isSelected && (
-                              <svg className="w-2.5 h-2.5 text-white ml-0.5 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                              </svg>
-                            )}
+                {/* Face Concerns */}
+                <div className="mb-6">
+                  <h4 className="text-lg font-medium text-cyan-200 mb-3">Face</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {['Acne', 'Redness', 'Pigments', 'Sagging', 'Fine Lines', 'Uneven Texture'].map((option) => {
+                      const currentConcerns = Array.isArray(responses.primary_concern) ? responses.primary_concern as string[] : []
+                      const isSelected = currentConcerns.includes(option)
+
+                      return (
+                        <button
+                          key={option}
+                          onClick={() => {
+                            if (isSelected) {
+                              handleAnswer('primary_concern', currentConcerns.filter(c => c !== option))
+                            } else {
+                              handleAnswer('primary_concern', [...currentConcerns, option])
+                            }
+                          }}
+                          className={`p-3 text-sm rounded-xl border transition-all duration-300 ${
+                            isSelected
+                              ? 'border-cyan-400/50 bg-cyan-500/20 text-cyan-100 shadow-lg shadow-cyan-500/25'
+                              : 'border-white/20 bg-white/5 text-slate-300 hover:border-white/30 hover:bg-white/10'
+                          }`}
+                        >
+                          <div className="flex items-center justify-center space-x-2">
+                            <div className={`w-4 h-4 rounded border-2 transition-all ${
+                              isSelected ? 'bg-cyan-500 border-cyan-400' : 'border-white/30'
+                            }`}>
+                              {isSelected && (
+                                <svg className="w-2.5 h-2.5 text-white ml-0.5 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                </svg>
+                              )}
+                            </div>
+                            <span>{option}</span>
                           </div>
-                          <span>{option}</span>
-                        </div>
-                      </button>
-                    )
-                  })}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* Eye Concerns */}
+                <div className="mb-6">
+                  <h4 className="text-lg font-medium text-cyan-200 mb-3">Eye</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {['Eye Bag', 'Dark Circle', 'Crow\'s Feet'].map((option) => {
+                      const currentConcerns = Array.isArray(responses.primary_concern) ? responses.primary_concern as string[] : []
+                      const isSelected = currentConcerns.includes(option)
+
+                      return (
+                        <button
+                          key={option}
+                          onClick={() => {
+                            if (isSelected) {
+                              handleAnswer('primary_concern', currentConcerns.filter(c => c !== option))
+                            } else {
+                              handleAnswer('primary_concern', [...currentConcerns, option])
+                            }
+                          }}
+                          className={`p-3 text-sm rounded-xl border transition-all duration-300 ${
+                            isSelected
+                              ? 'border-cyan-400/50 bg-cyan-500/20 text-cyan-100 shadow-lg shadow-cyan-500/25'
+                              : 'border-white/20 bg-white/5 text-slate-300 hover:border-white/30 hover:bg-white/10'
+                          }`}
+                        >
+                          <div className="flex items-center justify-center space-x-2">
+                            <div className={`w-4 h-4 rounded border-2 transition-all ${
+                              isSelected ? 'bg-cyan-500 border-cyan-400' : 'border-white/30'
+                            }`}>
+                              {isSelected && (
+                                <svg className="w-2.5 h-2.5 text-white ml-0.5 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                </svg>
+                              )}
+                            </div>
+                            <span>{option}</span>
+                          </div>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* Body Concerns */}
+                <div className="mb-6">
+                  <h4 className="text-lg font-medium text-cyan-200 mb-3">Body</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {['Stretch Marks', 'Cellulite', 'Cyst/Nodule', 'Puffy', 'Eczema', 'Psoriasis', 'Rashes', 'Uneven Tone'].map((option) => {
+                      const currentConcerns = Array.isArray(responses.primary_concern) ? responses.primary_concern as string[] : []
+                      const isSelected = currentConcerns.includes(option)
+
+                      return (
+                        <button
+                          key={option}
+                          onClick={() => {
+                            if (isSelected) {
+                              handleAnswer('primary_concern', currentConcerns.filter(c => c !== option))
+                            } else {
+                              handleAnswer('primary_concern', [...currentConcerns, option])
+                            }
+                          }}
+                          className={`p-3 text-sm rounded-xl border transition-all duration-300 ${
+                            isSelected
+                              ? 'border-cyan-400/50 bg-cyan-500/20 text-cyan-100 shadow-lg shadow-cyan-500/25'
+                              : 'border-white/20 bg-white/5 text-slate-300 hover:border-white/30 hover:bg-white/10'
+                          }`}
+                        >
+                          <div className="flex items-center justify-center space-x-2">
+                            <div className={`w-4 h-4 rounded border-2 transition-all ${
+                              isSelected ? 'bg-cyan-500 border-cyan-400' : 'border-white/30'
+                            }`}>
+                              {isSelected && (
+                                <svg className="w-2.5 h-2.5 text-white ml-0.5 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                </svg>
+                              )}
+                            </div>
+                            <span>{option}</span>
+                          </div>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* Hair Concerns */}
+                <div className="mb-6">
+                  <h4 className="text-lg font-medium text-cyan-200 mb-3">Hair</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {['Hair Loss', 'Dandruff', 'Scalp Acne', 'Scalp Irritation'].map((option) => {
+                      const currentConcerns = Array.isArray(responses.primary_concern) ? responses.primary_concern as string[] : []
+                      const isSelected = currentConcerns.includes(option)
+
+                      return (
+                        <button
+                          key={option}
+                          onClick={() => {
+                            if (isSelected) {
+                              handleAnswer('primary_concern', currentConcerns.filter(c => c !== option))
+                            } else {
+                              handleAnswer('primary_concern', [...currentConcerns, option])
+                            }
+                          }}
+                          className={`p-3 text-sm rounded-xl border transition-all duration-300 ${
+                            isSelected
+                              ? 'border-cyan-400/50 bg-cyan-500/20 text-cyan-100 shadow-lg shadow-cyan-500/25'
+                              : 'border-white/20 bg-white/5 text-slate-300 hover:border-white/30 hover:bg-white/10'
+                          }`}
+                        >
+                          <div className="flex items-center justify-center space-x-2">
+                            <div className={`w-4 h-4 rounded border-2 transition-all ${
+                              isSelected ? 'bg-cyan-500 border-cyan-400' : 'border-white/30'
+                            }`}>
+                              {isSelected && (
+                                <svg className="w-2.5 h-2.5 text-white ml-0.5 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                </svg>
+                              )}
+                            </div>
+                            <span>{option}</span>
+                          </div>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* Climate */}
+              <div>
+                <h3 className="text-2xl font-semibold text-white mb-4 text-center">
+                  Climate: {climateValue <= 25 ? 'Cold/Dry' : climateValue <= 75 ? 'Moderate' : 'Hot/Humid'}
+                </h3>
+                <div className="px-2">
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={climateValue}
+                    onChange={(e) => handleClimateChange([parseInt(e.target.value)])}
+                    className="w-full h-3 bg-white/20 rounded-lg appearance-none cursor-pointer slider"
+                    style={{
+                      background: `linear-gradient(to right, #3b82f6 0%, #06b6d4 ${climateValue}%, rgba(255,255,255,0.2) ${climateValue}%, rgba(255,255,255,0.2) 100%)`
+                    }}
+                  />
+                  <div className="flex justify-between text-sm text-slate-400 mt-2">
+                    <span>Cold/Dry</span>
+                    <span>Hot/Humid</span>
+                  </div>
                 </div>
               </div>
 

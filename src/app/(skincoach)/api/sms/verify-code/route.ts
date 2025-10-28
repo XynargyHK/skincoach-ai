@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import twilioService from '@/lib/twilio'
-import { verificationCodes } from '../send-verification/route'
+import { getVerificationCodes } from '../send-verification/route'
 import { devStorage } from '@/lib/dev-storage'
 
 export async function POST(request: NextRequest) {
@@ -16,6 +16,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get stored verification data - try both memory and dev storage
+    const verificationCodes = getVerificationCodes()
     let storedData = verificationCodes.get(phoneNumber)
 
     // In development, also try file storage

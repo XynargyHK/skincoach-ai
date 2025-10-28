@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verificationCodes } from '../send-verification/route'
+import { getVerificationCodes } from '../send-verification/route'
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,8 +12,9 @@ export async function GET(request: NextRequest) {
     }
 
     // Convert Map to Object for JSON serialization
-    const codesData: { [key: string]: any } = {}
+    const codesData: Record<string, any> = {}
 
+    const verificationCodes = getVerificationCodes()
     for (const [phone, data] of verificationCodes.entries()) {
       codesData[phone] = {
         code: data.code,

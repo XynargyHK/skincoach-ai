@@ -6,7 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "session:start": "node .claude/session-logger.js start",
+    "session:update": "node .claude/session-logger.js update",
+    "session:end": "node .claude/session-logger.js end",
+    "session:context": "node .claude/session-logger.js context",
+    "convert:all": "node convert-all-logs.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
@@ -18,6 +23,7 @@
     "clsx": "^2.1.1",
     "lucide-react": "^0.542.0",
     "next": "15.5.2",
+    "openai": "^5.23.1",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-hook-form": "^7.62.0",

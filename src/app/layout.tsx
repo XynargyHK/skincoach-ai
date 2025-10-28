@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from "@/contexts/AuthContext";
 import OneSignalProvider from "@/components/OneSignalProvider";
+import AICoach from "@/components/ui/ai-coach";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -85,6 +86,7 @@ export default function RootLayout({
         <OneSignalProvider>
           <AuthProvider>
             {children}
+            <AICoach />
           </AuthProvider>
         </OneSignalProvider>
       </body>
